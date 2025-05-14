@@ -36,27 +36,23 @@ const userSchema = new Schema({
         maxLength: 150,
         default: ''
     },
-    website: {
-        type: String,
-        default: ''
-    },
     phoneNumber: String,
     gender: String,
     followers: [{
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'userModel'
     }],
     following: [{
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'userModel'
     }],
     posts: [{
         type: Schema.Types.ObjectId,
-        ref: 'Post'
+        ref: 'post'
     }],
     savedPosts: [{
         type: Schema.Types.ObjectId,
-        ref: 'Post'
+        ref: 'post'
     }],
     isPrivate: {
         type: Boolean,
@@ -66,23 +62,11 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
-    role: {
-        type: String,
-        enum: ['user', 'admin', 'moderator'],
-        default: 'user'
-    },
     notifications: [{
         type: Schema.Types.ObjectId,
         ref: 'Notification'
     }],
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    }
+    removedAt: Date
 },
     { timestamps: true }
 );
