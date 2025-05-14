@@ -31,7 +31,7 @@ const postSchema = new Schema({
     // Para etiquetar mascotas o personas en la foto
     petTags: [{
         type: Schema.Types.ObjectId,
-        ref: 'Pet'
+        ref: 'pet'
     }],
     userTags: [{
         type: Schema.Types.ObjectId,
