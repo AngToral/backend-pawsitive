@@ -19,11 +19,11 @@ const notificationSchema = new Schema({
     },
     post: {
         type: Schema.Types.ObjectId,
-        ref: 'post'
+        ref: 'postModel'
     },
     comment: {
         type: Schema.Types.ObjectId,
-        ref: 'comment'
+        ref: 'commentModel'
     },
     message: String,
     read: {
@@ -34,4 +34,4 @@ const notificationSchema = new Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model('notification', notificationSchema);
+module.exports = mongoose.model('notificationModel', notificationSchema);

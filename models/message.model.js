@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const messageSchema = new Schema({
     conversation: {
         type: Schema.Types.ObjectId,
-        ref: 'conversation',
+        ref: 'conversationModel',
         required: true
     },
     sender: {
@@ -32,4 +32,4 @@ const messageSchema = new Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model('message', messageSchema);
+module.exports = mongoose.model('messageModel', messageSchema);

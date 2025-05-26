@@ -29,10 +29,12 @@ const petSchema = new Schema({
     bio: String,
     posts: [{
         type: Schema.Types.ObjectId,
-        ref: 'post'
+        ref: 'postModel'
     }]
 },
     { timestamps: true }
 );
 
-module.exports = mongoose.model('pet', petSchema);
+const pet = mongoose.model("petModel", petSchema);
+
+module.exports = { pet }

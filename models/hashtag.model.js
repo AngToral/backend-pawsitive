@@ -11,7 +11,7 @@ const hashtagSchema = new Schema({
     },
     posts: [{
         type: Schema.Types.ObjectId,
-        ref: 'post'
+        ref: 'postModel'
     }],
     count: {
         type: Number,
@@ -21,4 +21,4 @@ const hashtagSchema = new Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model('hashtag', hashtagSchema);
+module.exports = mongoose.model('hashtagModel', hashtagSchema);

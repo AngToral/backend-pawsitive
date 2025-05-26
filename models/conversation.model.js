@@ -8,7 +8,7 @@ const conversationSchema = new Schema({
     }],
     lastMessage: {
         type: Schema.Types.ObjectId,
-        ref: 'message'
+        ref: 'messageModel'
     },
     name: String,
     isGroup: {
@@ -21,10 +21,10 @@ const conversationSchema = new Schema({
     },
     messages: [{
         type: Schema.Types.ObjectId,
-        ref: 'message'
+        ref: 'messageModel'
     }]
 },
     { timestamps: true }
 );
 
-module.exports = mongoose.model('conversation', conversationSchema);
+module.exports = mongoose.model('conversationModel', conversationSchema);

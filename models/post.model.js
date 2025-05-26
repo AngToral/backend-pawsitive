@@ -24,14 +24,14 @@ const postSchema = new Schema({
     }],
     comments: [{
         type: Schema.Types.ObjectId,
-        ref: 'comment'
+        ref: 'commentModel'
     }],
     location: String,
     tags: [String],
     // Para etiquetar mascotas o personas en la foto
     petTags: [{
         type: Schema.Types.ObjectId,
-        ref: 'pet'
+        ref: 'petModel'
     }],
     userTags: [{
         type: Schema.Types.ObjectId,
@@ -49,4 +49,6 @@ const postSchema = new Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model('post', postSchema);
+const postModel = mongoose.model("postModel", postSchema);
+
+module.exports = { postModel }

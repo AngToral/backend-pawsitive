@@ -48,11 +48,11 @@ const userSchema = new Schema({
     }],
     posts: [{
         type: Schema.Types.ObjectId,
-        ref: 'post'
+        ref: 'postModel'
     }],
     savedPosts: [{
         type: Schema.Types.ObjectId,
-        ref: 'post'
+        ref: 'postModel'
     }],
     isPrivate: {
         type: Boolean,
@@ -64,7 +64,7 @@ const userSchema = new Schema({
     },
     notifications: [{
         type: Schema.Types.ObjectId,
-        ref: 'Notification'
+        ref: 'notificationModel'
     }],
     removedAt: Date
 },

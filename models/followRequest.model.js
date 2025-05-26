@@ -21,4 +21,4 @@ const followRequestSchema = new Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('followRequest', followRequestSchema);
+module.exports = mongoose.model('followRequestModel', followRequestSchema);

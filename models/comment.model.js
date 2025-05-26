@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const commentSchema = new Schema({
     post: {
         type: Schema.Types.ObjectId,
-        ref: 'post',
+        ref: 'postModel',
         required: true
     },
     user: {
@@ -44,4 +44,4 @@ const commentSchema = new Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model('comment', commentSchema);
+module.exports = mongoose.model('commentModel', commentSchema);
