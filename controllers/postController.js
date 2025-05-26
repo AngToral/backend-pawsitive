@@ -1,10 +1,18 @@
 const { postModel } = require("../models/post.model");
+const fs = require("node:fs");
+const cloudinary = require("cloudinary");
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const getAllPosts = async (req, res) => {
     try {
         const posts = await postModel.find({ removedAt: null })
             .sort({ createdAt: -1 })
-            .populate('user', 'username avatar')
+            .populate('user', 'username')
             .populate('likes', 'username')
             .populate('comments');
 
@@ -17,9 +25,9 @@ const getAllPosts = async (req, res) => {
 const getPostById = async (req, res) => {
     try {
         const post = await postModel.findById(req.params.id)
-            .populate('user', 'username avatar')
-            .populate('comments')
-            .populate('likes', 'username');
+            .populate('user', 'username')
+            .populate('likes', 'username')
+            .populate('comments');
 
         if (!post || post.removedAt) {
             return res.status(404).json({ message: 'Post no encontrado' });
@@ -33,31 +41,28 @@ const getPostById = async (req, res) => {
 
 const createPost = async (req, res) => {
     try {
-        const { caption, images, location, tags, petTags, userTags, hashtags } = req.body;
-        const user = req.user._id;
-
-        const newPost = new postModel({
-            user,
-            caption,
-            images,
-            location,
-            tags,
-            petTags,
-            userTags,
-            hashtags
-        });
-
-        const savedPost = await newPost.save();
-        res.status(201).json(savedPost);
+        const { caption, location, tags, petTags, userTags, hashtags } = req.body;
+        const result = await cloudinary.uploader.upload(req.file.path)
+        fs.unlinkSync(req.file.path);
+        console.log("result", result)
+        const photo = await postModel.create({ caption, location, tags, petTags, userTags, hashtags, postImage: result.url })
+        console.log(photo)
+        res.status(201).json({ msg: "Post creado", id: photo._id })
     } catch (error) {
-        res.status(500).json({ message: 'Error al crear el post', error });
+        res.status(400).json({ msg: "Ha habido un error", error: error.message })
     }
-};
+}
 
 const updatePost = async (req, res) => {
     try {
-        const post = await postModel.findByIdAndUpdate(req.params.id, { ...req.body })
-        if (post) { return res.status(200).json({ msg: "Post actualizado" }) }
+        const updateData = req.body;
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            fs.unlinkSync(req.file.path);
+            updateData.postImage = result.url;
+        }
+        const photo = await postModel.findByIdAndUpdate(req.params.id, updateData)
+        if (photo) { return res.status(200).json({ msg: "Post actualizado" }) }
         else return res.status(404).json({ msg: "Post no encontrado" })
     } catch (error) {
         res.status(400).json({ msg: "Ha habido un error", error: error.message })
@@ -66,21 +71,13 @@ const updatePost = async (req, res) => {
 
 const deletePost = async (req, res) => {
     try {
-        const post = await postModel.findByIdAndUpdate(
-            req.params.id,
-            { removedAt: new Date() },
-            { new: true }
-        );
-
-        if (!post) {
-            return res.status(404).json({ message: 'Post no encontrado' });
-        }
-
-        res.status(200).json({ message: 'Post eliminado (soft delete)', post });
+        const photo = await postModel.findByIdAndUpdate(req.params.id, { removedAt: new Date(), })
+        if (photo) { return res.status(200).json({ msg: "Post eliminado exitosamente" }) }
+        else return res.status(404).json({ msg: "Post no encontrado" })
     } catch (error) {
-        res.status(500).json({ message: 'Error al eliminar el post', error });
+        res.status(403).json({ msg: "Prohibido", error: error.message })
     }
-};
+}
 
 // const toggleLike = async (req, res) => {
 //     try {
