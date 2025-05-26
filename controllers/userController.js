@@ -84,9 +84,7 @@ const registerUser = async (req, res) => {
         const user = await userModel.create({ //creo usuario con contraseña encriptada
             ...req.body,
             password: hashedPassword,
-            profileType: "user",
-            status: "inactive",
-            profilePic: "https://res.cloudinary.com/dloxlkff8/image/upload/v1748196454/Daisy_mhsxsf.png"
+            profilePicture: "https://res.cloudinary.com/dloxlkff8/image/upload/v1748196454/Daisy_mhsxsf.png"
         })
         //El cliente debe crear contraseña de su nueva cuenta
         if (user) {

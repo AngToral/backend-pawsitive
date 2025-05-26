@@ -11,9 +11,9 @@ const ProfilePicUpload = multer({ dest: './images-profile' })
 const postUpload = multer({ dest: './images-post' })
 
 postRouter.get('/', getAllPosts)
-postRouter.get('/:id?', getPostById)
-postRouter.put('/update/:id?', ProfilePicUpload.single('profilePic'), updatePost)
+postRouter.get('/:id', getPostById)
+postRouter.put('/update/:id', ProfilePicUpload.single('profilePic'), updatePost)
 postRouter.post('/', postUpload.single('postImage'), createPost)
-postRouter.delete('/:id?', deletePost)
+postRouter.delete('/:id', deletePost)
 
 module.exports = { postRouter }
