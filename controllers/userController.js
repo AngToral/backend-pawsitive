@@ -88,7 +88,7 @@ const registerUser = async (req, res) => {
         })
         //El cliente debe crear contraseña de su nueva cuenta
         if (user) {
-            const sendingEmail = newAccountEmail(user._id, user.name)
+            const sendingEmail = newAccountEmail(user._id, user.fullName)
             const newEmail = {
                 from: "angtoral.dev@gmail.com",
                 to: email,
