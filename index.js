@@ -5,6 +5,7 @@ const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 3000
 
+const { userRouter } = require('./routes/userRoutes')
 
 
 const mongoose = require("mongoose")
@@ -17,6 +18,7 @@ main().catch(err => console.log(err));
 app.use(cors())
 app.use(express.json())
 
+app.use('/user', userRouter)
 
 
 const server = app.listen(port, () => {
