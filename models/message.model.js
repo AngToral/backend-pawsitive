@@ -12,24 +12,19 @@ const messageSchema = new Schema({
         ref: 'userModel',
         required: true
     },
-    text: String,
-    image: String,
-    read: {
-        type: Boolean,
-        default: false
+    receiver: {
+        type: Schema.Types.ObjectId,
+        ref: 'userModel',
+        required: true
     },
-    readBy: [{
-        user: {
-            type: Schema.Types.ObjectId,
-            ref: 'userModel'
-        },
-        readAt: {
-            type: Date,
-            default: Date.now
-        }
-    }]
+    content: {
+        type: String,
+        required: true
+    }
 },
     { timestamps: true }
 );
 
-module.exports = mongoose.model('messageModel', messageSchema);
+const messageModel = mongoose.model("messageModel", messageSchema);
+
+module.exports = { messageModel }

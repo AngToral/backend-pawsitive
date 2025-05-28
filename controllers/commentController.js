@@ -4,9 +4,9 @@ const postModel = require('../models/post.model');
 
 // Crear un nuevo comentario
 const createComment = async (req, res) => {
-    const { postId, text } = req.body;
+    const { text } = req.body;
     const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
-
+    const postId = req.params.postId;
     try {
         // Verificar si el post existe
         const post = await postModel.findById(postId);

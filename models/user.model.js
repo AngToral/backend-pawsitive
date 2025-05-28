@@ -49,15 +49,7 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'postModel'
     }],
-    savedPosts: [{
-        type: Schema.Types.ObjectId,
-        ref: 'postModel'
-    }],
     isPrivate: {
-        type: Boolean,
-        default: false
-    },
-    isVerified: {
         type: Boolean,
         default: false
     },

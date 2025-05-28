@@ -21,27 +21,10 @@ const commentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'userModel'
     }],
-    replies: [{
-        user: {
-            type: Schema.Types.ObjectId,
-            ref: 'userModel'
-        },
-        text: {
-            type: String,
-            required: true,
-            maxLength: 1000
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        },
-        likes: [{
-            type: Schema.Types.ObjectId,
-            ref: 'userModel'
-        }]
-    }]
 },
     { timestamps: true }
 );
 
-module.exports = mongoose.model('commentModel', commentSchema);
+const commentModel = mongoose.model("commentModel", commentSchema);
+
+module.exports = { commentModel }

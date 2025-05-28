@@ -7,12 +7,11 @@ const { getAllPosts,
 const multer = require('multer');
 
 const postRouter = express.Router();
-const ProfilePicUpload = multer({ dest: './images-profile' })
 const postUpload = multer({ dest: './images-post' })
 
 postRouter.get('/', getAllPosts)
 postRouter.get('/:id', getPostById)
-postRouter.put('/update/:id', ProfilePicUpload.single('profilePic'), updatePost)
+postRouter.put('/update/:id', postUpload.single('postImage'), updatePost)
 postRouter.post('/', postUpload.single('postImage'), createPost)
 postRouter.delete('/:id', deletePost)
 

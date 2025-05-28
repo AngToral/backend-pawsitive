@@ -14,18 +14,13 @@ const notificationSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['like', 'comment', 'follow', 'mention', 'tag', 'followRequest'],
+        enum: ['like', 'comment', 'follow', 'message'],
         required: true
     },
     post: {
         type: Schema.Types.ObjectId,
         ref: 'postModel'
     },
-    comment: {
-        type: Schema.Types.ObjectId,
-        ref: 'commentModel'
-    },
-    message: String,
     read: {
         type: Boolean,
         default: false
@@ -34,4 +29,6 @@ const notificationSchema = new Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model('notificationModel', notificationSchema);
+const notificationModel = mongoose.model("notificationModel", notificationSchema);
+
+module.exports = { notificationModel }

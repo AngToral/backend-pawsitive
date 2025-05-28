@@ -41,11 +41,11 @@ const getPostById = async (req, res) => {
 
 const createPost = async (req, res) => {
     try {
-        const { caption, location, tags, petTags, userTags, hashtags } = req.body;
+        const { caption } = req.body;
         const result = await cloudinary.uploader.upload(req.file.path)
         fs.unlinkSync(req.file.path);
         console.log("result", result)
-        const photo = await postModel.create({ caption, location, tags, petTags, userTags, hashtags, postImage: result.url })
+        const photo = await postModel.create({ caption, postImage: result.url })
         console.log(photo)
         res.status(201).json({ msg: "Post creado", id: photo._id })
     } catch (error) {
@@ -79,33 +79,34 @@ const deletePost = async (req, res) => {
     }
 }
 
-// const toggleLike = async (req, res) => {
-//     try {
-//         const post = await postModel.findById(req.params.id);
-//         const userId = req.user._id;
+const toggleLike = async (req, res) => {
+    try {
+        const post = await postModel.findById(req.params.id);
+        const userId = req.user._id;
 
-//         if (!post) {
-//             return res.status(404).json({ message: 'Post no encontrado' });
-//         }
+        if (!post) {
+            return res.status(404).json({ message: 'Post no encontrado' });
+        }
 
-//         const index = post.likes.indexOf(userId);
-//         if (index > -1) {
-//             post.likes.splice(index, 1); // Quitar like
-//         } else {
-//             post.likes.push(userId); // Agregar like
-//         }
+        const index = post.likes.indexOf(userId);
+        if (index > -1) {
+            post.likes.splice(index, 1); // Quitar like
+        } else {
+            post.likes.push(userId); // Agregar like
+        }
 
-//         await post.save();
-//         res.status(200).json({ likes: post.likes });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Error al modificar el like', error });
-//     }
-// };
+        await post.save();
+        res.status(200).json({ likes: post.likes });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al modificar el like', error });
+    }
+};
 
 module.exports = {
     getAllPosts,
     getPostById,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    toggleLike
 };

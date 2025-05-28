@@ -11,13 +11,10 @@ const postSchema = new Schema({
         type: String,
         maxLength: 2200
     },
-    images: [{
-        url: {
-            type: String,
-            required: true
-        },
-        alt: String
-    }],
+    postImage: {
+        type: String,
+        required: true
+    },
     likes: [{
         type: Schema.Types.ObjectId,
         ref: 'userModel'
@@ -26,20 +23,6 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'commentModel'
     }],
-    location: String,
-    tags: [String],
-    // Para etiquetar mascotas o personas en la foto
-    petTags: [{
-        type: Schema.Types.ObjectId,
-        ref: 'petModel'
-    }],
-    userTags: [{
-        type: Schema.Types.ObjectId,
-        ref: 'userModel'
-    }],
-    // Hashtags para categorizar el contenido
-    hashtags: [String],
-    // Características adicionales
     allowComments: {
         type: Boolean,
         default: true

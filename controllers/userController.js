@@ -217,6 +217,30 @@ const sendChangePassword = async (req, res) => {
     }
 }
 
+const followUser = async (req, res) => {
+    try {
+        const userToFollow = await User.findById(req.params.id);
+        const currentUser = await User.findById(req.user.id);
+
+        if (!userToFollow.followers.includes(req.user.id)) {
+            userToFollow.followers.push(req.user.id);
+            currentUser.following.push(userToFollow._id);
+            await userToFollow.save();
+            await currentUser.save();
+            await createNotification('follow', req.user.id, userToFollow._id);
+            res.json({ message: 'User followed' });
+        } else {
+            userToFollow.followers.pull(req.user.id);
+            currentUser.following.pull(userToFollow._id);
+            await userToFollow.save();
+            await currentUser.save();
+            res.json({ message: 'User unfollowed' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 module.exports = {
     getUsers,
     getUserId,
@@ -228,5 +252,6 @@ module.exports = {
     deleteUser,
     forgotPasswordEmail,
     sendChangePassword,
+    followUser
 
 }
