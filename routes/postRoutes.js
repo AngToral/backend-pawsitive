@@ -1,18 +1,35 @@
-const express = require("express");
-const { getAllPosts,
+const express = require('express');
+const router = express.Router();
+const { authMiddleware } = require('../middleware/authMiddleware');
+const { uploadMultiple, handleMulterError } = require('../middleware/uploadMiddleware');
+const {
+    getAllPosts,
     getPostById,
     createPost,
     updatePost,
-    deletePost } = require("../controllers/postController");
-const multer = require('multer');
+    deletePost,
+    toggleLike
+} = require('../controllers/postController');
 
-const postRouter = express.Router();
-const postUpload = multer({ dest: './images-post' })
+// Todas las rutas requieren autenticación
+router.use(authMiddleware);
 
-postRouter.get('/', getAllPosts)
-postRouter.get('/:id', getPostById)
-postRouter.put('/update/:id', postUpload.single('postImage'), updatePost)
-postRouter.post('/', postUpload.single('postImage'), createPost)
-postRouter.delete('/:id', deletePost)
+// Obtener todos los posts
+router.get('/', getAllPosts);
 
-module.exports = { postRouter }
+// Obtener un post específico
+router.get('/:id', getPostById);
+
+// Crear un nuevo post
+router.post('/', uploadMultiple, handleMulterError, createPost);
+
+// Actualizar un post
+router.put('/:id', uploadMultiple, handleMulterError, updatePost);
+
+// Eliminar un post
+router.delete('/:id', deletePost);
+
+// Dar/quitar like a un post
+router.post('/:id/like', toggleLike);
+
+module.exports = { postRouter: router };

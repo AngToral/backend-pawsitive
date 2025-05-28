@@ -37,14 +37,18 @@ const userSchema = new Schema({
     },
     phoneNumber: String,
     gender: String,
-    followers: [{
-        type: Schema.Types.ObjectId,
-        ref: 'userModel'
-    }],
-    following: [{
-        type: Schema.Types.ObjectId,
-        ref: 'userModel'
-    }],
+    followersCount: {
+        type: Number,
+        default: 0
+    },
+    followingCount: {
+        type: Number,
+        default: 0
+    },
+    postsCount: {
+        type: Number,
+        default: 0
+    },
     posts: [{
         type: Schema.Types.ObjectId,
         ref: 'postModel'

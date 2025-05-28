@@ -1,145 +1,120 @@
-const commentModel = require('../models/comment.model');
-const postModel = require('../models/post.model');
-
+const { commentModel } = require('../models/comment.model');
+const { postModel } = require('../models/post.model');
+const { notificationModel } = require('../models/notification.model');
+const mongoose = require('mongoose');
 
 // Crear un nuevo comentario
 const createComment = async (req, res) => {
-    const { text } = req.body;
-    const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
-    const postId = req.params.postId;
     try {
-        // Verificar si el post existe
+        const { postId, content } = req.body;
+        const userId = req.user._id;
+
+        // Verificar que el post existe
         const post = await postModel.findById(postId);
         if (!post) {
             return res.status(404).json({ message: 'Post no encontrado' });
         }
 
         // Crear el comentario
-        const newComment = new commentModel({
+        const comment = await commentModel.create({
             post: postId,
             user: userId,
-            text: text,
+            content
         });
 
-        await newComment.save();
-        return res.status(201).json({ message: 'Comentario creado exitosamente', comment: newComment });
+        // Añadir el comentario al post
+        await postModel.findByIdAndUpdate(postId, {
+            $push: { comments: comment._id }
+        });
+
+        // Crear notificación si el comentario no es del propio usuario del post
+        if (post.user.toString() !== userId.toString()) {
+            await notificationModel.create({
+                type: 'comment',
+                user: post.user,
+                fromUser: userId,
+                post: postId,
+                comment: comment._id
+            });
+        }
+
+        // Poblar el comentario con datos del usuario
+        const populatedComment = await comment.populate('user', 'username profileImage');
+
+        res.status(201).json(populatedComment);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al crear el comentario' });
+        res.status(500).json({ message: 'Error al crear comentario', error: error.message });
     }
 };
 
-// Obtener todos los comentarios de un post
-const getCommentsByPost = async (req, res) => {
-    const { postId } = req.params;
-
+// Obtener comentarios de un post
+const getPostComments = async (req, res) => {
     try {
-        // Obtener todos los comentarios asociados al post
+        const { postId } = req.params;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
         const comments = await commentModel.find({ post: postId })
-            .populate('user', 'name email') // Poblamos los datos del usuario que hizo el comentario
-            .populate('likes', 'name email') // Poblamos los datos de los usuarios que le dieron like
-            .populate('replies.user', 'name email') // Poblamos los datos de los usuarios que respondieron
-            .sort({ createdAt: -1 }); // Ordenar los comentarios por fecha de creación
+            .populate('user', 'username profileImage')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
-        if (!comments || comments.length === 0) {
-            return res.status(404).json({ message: 'No hay comentarios para este post' });
-        }
+        const totalComments = await commentModel.countDocuments({ post: postId });
 
-        return res.status(200).json(comments);
+        res.status(200).json({
+            comments,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalComments / limit),
+                totalComments
+            }
+        });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al obtener los comentarios' });
-    }
-};
-
-// Agregar un like a un comentario
-const likeComment = async (req, res) => {
-    const { commentId } = req.params;
-    const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
-
-    try {
-        // Buscar el comentario
-        const comment = await commentModel.findById(commentId);
-        if (!comment) {
-            return res.status(404).json({ message: 'Comentario no encontrado' });
-        }
-
-        // Verificar si el usuario ya le dio like
-        if (comment.likes.includes(userId)) {
-            return res.status(400).json({ message: 'Ya le diste like a este comentario' });
-        }
-
-        // Agregar el like al comentario
-        comment.likes.push(userId);
-        await comment.save();
-
-        return res.status(200).json({ message: 'Like agregado exitosamente' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al agregar el like' });
+        res.status(500).json({ message: 'Error al obtener comentarios', error: error.message });
     }
 };
 
 // Eliminar un comentario
 const deleteComment = async (req, res) => {
-    const { commentId } = req.params;
-    const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
-
     try {
-        // Buscar el comentario
+        const { commentId } = req.params;
+        const userId = req.user._id;
+
         const comment = await commentModel.findById(commentId);
         if (!comment) {
             return res.status(404).json({ message: 'Comentario no encontrado' });
         }
 
-        // Verificar si el usuario es el autor del comentario o un administrador
-        if (comment.user.toString() !== userId.toString()) {
-            return res.status(403).json({ message: 'No tienes permisos para eliminar este comentario' });
+        // Verificar que el usuario es el autor del comentario o del post
+        const post = await postModel.findById(comment.post);
+        if (comment.user.toString() !== userId.toString() && post.user.toString() !== userId.toString()) {
+            return res.status(403).json({ message: 'No autorizado para eliminar este comentario' });
         }
 
         // Eliminar el comentario
-        await comment.remove();
+        await commentModel.findByIdAndDelete(commentId);
 
-        return res.status(200).json({ message: 'Comentario eliminado exitosamente' });
+        // Eliminar la referencia del comentario en el post
+        await postModel.findByIdAndUpdate(comment.post, {
+            $pull: { comments: commentId }
+        });
+
+        // Eliminar la notificación relacionada si existe
+        await notificationModel.deleteOne({
+            type: 'comment',
+            comment: commentId
+        });
+
+        res.status(200).json({ message: 'Comentario eliminado correctamente' });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al eliminar el comentario' });
-    }
-};
-
-// Agregar una respuesta a un comentario
-const addReply = async (req, res) => {
-    const { commentId } = req.params;
-    const { text } = req.body;
-    const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
-
-    try {
-        // Buscar el comentario
-        const comment = await commentModel.findById(commentId);
-        if (!comment) {
-            return res.status(404).json({ message: 'Comentario no encontrado' });
-        }
-
-        // Agregar la respuesta
-        const newReply = {
-            user: userId,
-            text: text,
-        };
-
-        comment.replies.push(newReply);
-        await comment.save();
-
-        return res.status(201).json({ message: 'Respuesta agregada exitosamente', comment });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al agregar la respuesta' });
+        res.status(500).json({ message: 'Error al eliminar comentario', error: error.message });
     }
 };
 
 module.exports = {
     createComment,
-    getCommentsByPost,
-    likeComment,
-    deleteComment,
-    addReply,
+    getPostComments,
+    deleteComment
 };

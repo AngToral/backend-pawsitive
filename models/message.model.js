@@ -20,11 +20,23 @@ const messageSchema = new Schema({
     content: {
         type: String,
         required: true
+    },
+    readAt: {
+        type: Date,
+        default: null
+    },
+    status: {
+        type: String,
+        enum: ['sent', 'delivered', 'read'],
+        default: 'sent'
+    },
+    type: {
+        type: String,
+        enum: ['text', 'image', 'system'],
+        default: 'text'
     }
-},
-    { timestamps: true }
-);
+}, { timestamps: true });
 
 const messageModel = mongoose.model("messageModel", messageSchema);
 
-module.exports = { messageModel }
+module.exports = { messageModel };

@@ -1,25 +1,26 @@
-const express = require("express");
-const { createComment,
-    getCommentsByPost,
-    likeComment,
-    deleteComment,
-    addReply, } = require("../controllers/commentController");
+const express = require('express');
+const router = express.Router();
+const { authMiddleware } = require('../middleware/authMiddleware');
+const {
+    createComment,
+    getComments,
+    updateComment,
+    deleteComment
+} = require('../controllers/commentController');
 
-const commentRouter = express.Router();
+// Todas las rutas requieren autenticación
+router.use(authMiddleware);
 
-// Ruta para crear un comentario
-router.post('/create', createComment);
+// Crear un nuevo comentario
+router.post('/', createComment);
 
-// Ruta para obtener todos los comentarios de un post específico
-router.get('/post/:postId', getCommentsByPost);
+// Obtener comentarios de un post
+router.get('/post/:postId', getComments);
 
-// Ruta para agregar un like a un comentario
-router.put('/like/:commentId', likeComment);
+// Actualizar un comentario
+router.put('/:commentId', updateComment);
 
-// Ruta para eliminar un comentario
+// Eliminar un comentario
 router.delete('/:commentId', deleteComment);
 
-// Ruta para agregar una respuesta a un comentario
-router.post('/reply/:commentId', addReply);
-
-module.exports = { commentRouter }
+module.exports = { commentRouter: router };

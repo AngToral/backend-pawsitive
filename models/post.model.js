@@ -9,12 +9,22 @@ const postSchema = new Schema({
     },
     caption: {
         type: String,
-        maxLength: 2200
-    },
-    postImage: {
-        type: String,
         required: true
     },
+    images: [{
+        url: {
+            type: String,
+            required: true
+        },
+        publicId: {
+            type: String,
+            required: true
+        }
+    }],
+    mentions: [{
+        type: Schema.Types.ObjectId,
+        ref: 'userModel'
+    }],
     likes: [{
         type: Schema.Types.ObjectId,
         ref: 'userModel'
@@ -23,15 +33,20 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'commentModel'
     }],
-    allowComments: {
-        type: Boolean,
-        default: true
+    likesCount: {
+        type: Number,
+        default: 0
     },
-    removedAt: Date
-},
-    { timestamps: true }
-);
+    commentsCount: {
+        type: Number,
+        default: 0
+    },
+    removedAt: {
+        type: Date,
+        default: null
+    }
+}, { timestamps: true });
 
-const postModel = mongoose.model("postModel", postSchema);
+const postModel = mongoose.model('postModel', postSchema);
 
-module.exports = { postModel }
+module.exports = { postModel };
