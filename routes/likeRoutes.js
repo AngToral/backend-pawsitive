@@ -1,22 +1,23 @@
 const express = require('express');
-const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
 const {
     likePost,
     unlikePost,
     getLikes
 } = require('../controllers/likeController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+
+const likeRouter = express.Router();
 
 // Todas las rutas requieren autenticación
-router.use(authMiddleware);
+likeRouter.use(authMiddleware);
 
 // Dar like a un post
-router.post('/post/:postId', likePost);
+likeRouter.post('/post/:postId', likePost);
 
 // Quitar like de un post
-router.delete('/post/:postId', unlikePost);
+likeRouter.delete('/post/:postId', unlikePost);
 
 // Obtener likes de un post
-router.get('/post/:postId', getLikes);
+likeRouter.get('/post/:postId', getLikes);
 
-module.exports = { likeRouter: router }; 
+module.exports = { likeRouter }; 

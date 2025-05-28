@@ -13,6 +13,7 @@ const { likeRouter } = require('./routes/likeRoutes')
 const { followRouter } = require('./routes/followRoutes')
 const { messageRouter } = require('./routes/messageRoutes')
 const { feedRouter } = require('./routes/feedRoutes')
+const { notificationRouter } = require('./routes/notificationRoutes')
 const { initSocket } = require('./websockets/websocket')
 
 const mongoose = require("mongoose")
@@ -33,6 +34,7 @@ app.use('/like', likeRouter)
 app.use('/follow', followRouter)
 app.use('/message', messageRouter)
 app.use('/feed', feedRouter)
+app.use('/notification', notificationRouter)
 
 const server = app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

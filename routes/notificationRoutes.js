@@ -1,22 +1,27 @@
 const express = require('express');
-const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
 const {
     getNotifications,
-    markNotificationsAsRead,
-    deleteNotifications
+    markAsRead,
+    deleteNotification,
+    clearAllNotifications
 } = require('../controllers/notificationController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+
+const notificationRouter = express.Router();
 
 // Todas las rutas requieren autenticación
-router.use(authMiddleware);
+notificationRouter.use(authMiddleware);
 
 // Obtener notificaciones del usuario
-router.get('/', getNotifications);
+notificationRouter.get('/', getNotifications);
 
-// Marcar notificaciones como leídas
-router.put('/read', markNotificationsAsRead);
+// Marcar notificación como leída
+notificationRouter.put('/:notificationId/read', markAsRead);
 
-// Eliminar notificaciones
-router.delete('/', deleteNotifications);
+// Eliminar una notificación
+notificationRouter.delete('/:notificationId', deleteNotification);
 
-module.exports = { notificationRouter: router }; 
+// Eliminar todas las notificaciones
+notificationRouter.delete('/', clearAllNotifications);
+
+module.exports = { notificationRouter }; 

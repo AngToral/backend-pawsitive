@@ -1,26 +1,31 @@
 const express = require('express');
-const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
 const {
     createComment,
     getComments,
     updateComment,
-    deleteComment
+    deleteComment,
+    likeComment
 } = require('../controllers/commentController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+
+const commentRouter = express.Router();
 
 // Todas las rutas requieren autenticación
-router.use(authMiddleware);
+commentRouter.use(authMiddleware);
 
 // Crear un nuevo comentario
-router.post('/', createComment);
+commentRouter.post('/', createComment);
 
 // Obtener comentarios de un post
-router.get('/post/:postId', getComments);
+commentRouter.get('/post/:postId', getComments);
 
 // Actualizar un comentario
-router.put('/:commentId', updateComment);
+commentRouter.put('/:commentId', updateComment);
 
 // Eliminar un comentario
-router.delete('/:commentId', deleteComment);
+commentRouter.delete('/:commentId', deleteComment);
 
-module.exports = { commentRouter: router };
+// Dar/quitar like a un comentario
+commentRouter.post('/:commentId/like', likeComment);
+
+module.exports = { commentRouter };

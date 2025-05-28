@@ -1,6 +1,4 @@
 const express = require('express');
-const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
 const {
     followUser,
     unfollowUser,
@@ -10,29 +8,32 @@ const {
     rejectFollowRequest,
     getPendingFollowRequests
 } = require('../controllers/followController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+
+const followRouter = express.Router();
 
 // Todas las rutas requieren autenticación
-router.use(authMiddleware);
+followRouter.use(authMiddleware);
 
 // Seguir a un usuario
-router.post('/:userId', followUser);
+followRouter.post('/:userId', followUser);
 
 // Dejar de seguir a un usuario
-router.delete('/:userId', unfollowUser);
+followRouter.delete('/:userId', unfollowUser);
 
 // Obtener seguidores de un usuario
-router.get('/:userId/followers', getFollowers);
+followRouter.get('/:userId/followers', getFollowers);
 
 // Obtener usuarios seguidos por un usuario
-router.get('/:userId/following', getFollowing);
+followRouter.get('/:userId/following', getFollowing);
 
 // Aceptar solicitud de seguimiento
-router.put('/accept/:userId', acceptFollowRequest);
+followRouter.put('/accept/:userId', acceptFollowRequest);
 
 // Rechazar solicitud de seguimiento
-router.put('/reject/:userId', rejectFollowRequest);
+followRouter.put('/reject/:userId', rejectFollowRequest);
 
 // Obtener solicitudes de seguimiento pendientes
-router.get('/requests/pending', getPendingFollowRequests);
+followRouter.get('/requests/pending', getPendingFollowRequests);
 
-module.exports = { followRouter: router }; 
+module.exports = { followRouter }; 

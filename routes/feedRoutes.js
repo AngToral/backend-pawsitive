@@ -1,26 +1,27 @@
 const express = require('express');
-const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
 const {
     getFeed,
-    getExplorePosts,
-    getHashtagPosts,
-    getSavedPosts
+    getExplore,
+    getHashtagFeed,
+    getUserFeed
 } = require('../controllers/feedController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+
+const feedRouter = express.Router();
 
 // Todas las rutas requieren autenticación
-router.use(authMiddleware);
+feedRouter.use(authMiddleware);
 
-// Obtener feed personalizado
-router.get('/', getFeed);
+// Obtener feed principal del usuario
+feedRouter.get('/', getFeed);
 
-// Obtener posts sugeridos (explorar)
-router.get('/explore', getExplorePosts);
+// Obtener feed de exploración
+feedRouter.get('/explore', getExplore);
 
-// Obtener posts por hashtag
-router.get('/hashtag/:hashtag', getHashtagPosts);
+// Obtener feed por hashtag
+feedRouter.get('/hashtag/:tag', getHashtagFeed);
 
-// Obtener posts guardados
-router.get('/saved', getSavedPosts);
+// Obtener feed de un usuario específico
+feedRouter.get('/user/:userId', getUserFeed);
 
-module.exports = { feedRouter: router }; 
+module.exports = { feedRouter }; 

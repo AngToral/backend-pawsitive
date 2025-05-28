@@ -1,18 +1,32 @@
-const express = require("express");
-const { getUsers, getUserId, updateUser, updatePhoto, registerUser, login, deleteUser, forgotPasswordEmail, sendChangePassword, } = require("../controllers/userController");
-const multer = require('multer');
+const express = require('express');
+const {
+    registerUser,
+    loginUser,
+    updateUser,
+    deleteUser,
+    getUser,
+    searchUsers,
+    verifyEmail,
+    requestPasswordReset,
+    resetPassword
+} = require('../controllers/userController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+const { uploadSingle } = require('../middleware/uploadMiddleware');
 
 const userRouter = express.Router();
-const ProfilePicUpload = multer({ dest: './images-profile' })
 
-userRouter.get('/', getUsers)
-userRouter.get('/:id', getUserId)
-userRouter.put('/:id', updateUser)
-userRouter.put('/update/:id', ProfilePicUpload.single('profilePic'), updatePhoto)
-userRouter.post('/register', registerUser)
-userRouter.post('/login', login)
-userRouter.delete('/:id', deleteUser)
-userRouter.post('/forgottenpassword', forgotPasswordEmail) // Si se olvida la contraseña fuera del login
-userRouter.post('/changepassword', sendChangePassword) //Si quieres cambiar la contraseña dentro del login
+// Rutas públicas
+userRouter.post('/register', registerUser);
+userRouter.post('/login', loginUser);
+userRouter.get('/verify/:token', verifyEmail);
+userRouter.post('/request-reset', requestPasswordReset);
+userRouter.post('/reset-password', resetPassword);
 
-module.exports = { userRouter }
+// Rutas protegidas
+userRouter.use(authMiddleware);
+userRouter.put('/update', uploadSingle, updateUser);
+userRouter.delete('/', deleteUser);
+userRouter.get('/:username', getUser);
+userRouter.get('/search/:query', searchUsers);
+
+module.exports = { userRouter };
