@@ -1,9 +1,9 @@
 const express = require('express');
 const {
-    createConversation,
-    getConversations,
-    getConversation,
-    deleteConversation
+    getOrCreateConversation,
+    getUserConversations,
+    getConversationMessages,
+    markMessagesAsRead
 } = require('../controllers/conversationController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -12,16 +12,16 @@ const conversationRouter = express.Router();
 // Todas las rutas requieren autenticación
 conversationRouter.use(authMiddleware);
 
-// Crear una nueva conversación
-conversationRouter.post('/', createConversation);
+// Crear o obtener una conversación con otro usuario
+conversationRouter.post('/', getOrCreateConversation);
 
 // Obtener todas las conversaciones del usuario
-conversationRouter.get('/', getConversations);
+conversationRouter.get('/', getUserConversations);
 
-// Obtener una conversación específica
-conversationRouter.get('/:conversationId', getConversation);
+// Obtener mensajes de una conversación específica
+conversationRouter.get('/:conversationId/messages', getConversationMessages);
 
-// Eliminar una conversación
-conversationRouter.delete('/:conversationId', deleteConversation);
+// Marcar mensajes como leídos
+conversationRouter.put('/:conversationId/read', markMessagesAsRead);
 
 module.exports = { conversationRouter }; 

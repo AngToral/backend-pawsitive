@@ -111,41 +111,82 @@ const registerUser = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    const { email, password } = req.body
     try {
-        const userChecked = await userModel.findOne({ email: email }) //busco email en BD
-        if (!userChecked) return res.status(404).json({ msg: "This email is not registered" })
-        if (userChecked.removedAt) return res.status(404).json({ msg: "Email is no longer active" })
-        if (userChecked.status === "inactive") return res.status(404).json({ msg: "You have to change your password first" })
-        const passwordChecked = await bcrypt.compare(req.body.password, userChecked.password) // si existe email, verificamos si la contraseña es correcta
-        if (passwordChecked) { //generamos token de ingreso si la contraseña es correcta
-            const token = jwt.sign({ //creo token con esta info
-                id: userChecked._id,
-                name: userChecked.name,
-                lastname: userChecked.lastname,
-                email: userChecked.email
-            }, myTokenSecret, //doy secreto de validación
-                { expiresIn: '1h' } //expira en 1h el token
-            )
-            console.log("token: ", token)
-            return res.status(200).json(token)
-        }
-        return res.status(404).json({ msg: "Wrong password" })
-    } catch (error) {
-        res.status(400).json({ msg: "You missed some parameter", error: error.message })
-    }
-}
+        const { email, password } = req.body;
 
-const verifyToken = async (req, res, next) => { //middleware que verifica token activo
-    try {
-        const token = req.headers.authorization.split(' ')[1]; // nos quedamos con el token antes de Bearer
-        const decodedToken = jwt.verify(token, myTokenSecret)
-        req.user = decodedToken;
-        next()
+        // Validar que se proporcionan ambos campos
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Se requieren email y contraseña'
+            });
+        }
+
+        // Buscar usuario por email
+        const userChecked = await userModel.findOne({ email: email });
+
+        // Validar existencia del usuario
+        if (!userChecked) {
+            return res.status(404).json({
+                success: false,
+                message: 'Este email no está registrado'
+            });
+        }
+
+        // Validar estado del usuario
+        if (userChecked.removedAt) {
+            return res.status(403).json({
+                success: false,
+                message: 'Esta cuenta ya no está activa'
+            });
+        }
+
+        if (userChecked.status === "inactive") {
+            return res.status(403).json({
+                success: false,
+                message: 'Necesitas cambiar tu contraseña primero'
+            });
+        }
+
+        // Verificar contraseña
+        const passwordChecked = await bcrypt.compare(password, userChecked.password);
+        if (!passwordChecked) {
+            return res.status(401).json({
+                success: false,
+                message: 'Contraseña incorrecta'
+            });
+        }
+
+        // Generar token
+        const token = jwt.sign({
+            _id: userChecked._id,
+            username: userChecked.username,
+            email: userChecked.email,
+            fullName: userChecked.fullName
+        }, myTokenSecret, { expiresIn: '1h' });
+
+        // Devolver respuesta exitosa
+        return res.status(200).json({
+            success: true,
+            message: 'Login exitoso',
+            token: token,
+            user: {
+                _id: userChecked._id,
+                username: userChecked.username,
+                email: userChecked.email,
+                fullName: userChecked.fullName
+            }
+        });
+
     } catch (error) {
-        res.status(403).json({ msg: "You are not authenticated", error })
+        console.error('Error en login:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor',
+            error: error.message
+        });
     }
-}
+};
 
 const deleteUser = async (req, res) => {
     try {
@@ -248,10 +289,8 @@ module.exports = {
     updatePhoto,
     registerUser,
     login,
-    verifyToken,
     deleteUser,
     forgotPasswordEmail,
     sendChangePassword,
     followUser
-
 }

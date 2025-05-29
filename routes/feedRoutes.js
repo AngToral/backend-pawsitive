@@ -1,9 +1,9 @@
 const express = require('express');
 const {
     getFeed,
-    getExplore,
-    getHashtagFeed,
-    getUserFeed
+    getExplorePosts,
+    getHashtagPosts,
+    getSavedPosts
 } = require('../controllers/feedController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -16,12 +16,12 @@ feedRouter.use(authMiddleware);
 feedRouter.get('/', getFeed);
 
 // Obtener feed de exploración
-feedRouter.get('/explore', getExplore);
+feedRouter.get('/explore', getExplorePosts);
 
 // Obtener feed por hashtag
-feedRouter.get('/hashtag/:tag', getHashtagFeed);
+feedRouter.get('/hashtag/:hashtag', getHashtagPosts);
 
-// Obtener feed de un usuario específico
-feedRouter.get('/user/:userId', getUserFeed);
+// Obtener posts guardados
+feedRouter.get('/saved', getSavedPosts);
 
 module.exports = { feedRouter }; 

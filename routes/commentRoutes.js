@@ -1,10 +1,8 @@
 const express = require('express');
 const {
     createComment,
-    getComments,
-    updateComment,
-    deleteComment,
-    likeComment
+    getPostComments,
+    deleteComment
 } = require('../controllers/commentController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -17,15 +15,9 @@ commentRouter.use(authMiddleware);
 commentRouter.post('/', createComment);
 
 // Obtener comentarios de un post
-commentRouter.get('/post/:postId', getComments);
-
-// Actualizar un comentario
-commentRouter.put('/:commentId', updateComment);
+commentRouter.get('/post/:postId', getPostComments);
 
 // Eliminar un comentario
 commentRouter.delete('/:commentId', deleteComment);
-
-// Dar/quitar like a un comentario
-commentRouter.post('/:commentId/like', likeComment);
 
 module.exports = { commentRouter };

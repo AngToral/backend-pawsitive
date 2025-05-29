@@ -5,8 +5,7 @@ const {
     getFollowers,
     getFollowing,
     acceptFollowRequest,
-    rejectFollowRequest,
-    getPendingFollowRequests
+    rejectFollowRequest
 } = require('../controllers/followController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -28,12 +27,9 @@ followRouter.get('/:userId/followers', getFollowers);
 followRouter.get('/:userId/following', getFollowing);
 
 // Aceptar solicitud de seguimiento
-followRouter.put('/accept/:userId', acceptFollowRequest);
+followRouter.put('/accept/:followerId', acceptFollowRequest);
 
 // Rechazar solicitud de seguimiento
-followRouter.put('/reject/:userId', rejectFollowRequest);
-
-// Obtener solicitudes de seguimiento pendientes
-followRouter.get('/requests/pending', getPendingFollowRequests);
+followRouter.put('/reject/:followerId', rejectFollowRequest);
 
 module.exports = { followRouter }; 

@@ -23,8 +23,21 @@ async function main() {
 }
 main().catch(err => console.log(err));
 
-app.use(cors())
+// Configuración de CORS
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Añade aquí el origen de tu frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}))
+
 app.use(express.json())
+
+// Middleware para logging de solicitudes
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    next();
+})
 
 app.use('/user', userRouter)
 app.use('/post', postRouter)

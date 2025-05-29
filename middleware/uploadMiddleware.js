@@ -4,7 +4,7 @@ const path = require('path');
 // Configuración de almacenamiento
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, 'images-post/');
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);

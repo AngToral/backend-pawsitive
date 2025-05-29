@@ -1,9 +1,8 @@
 const express = require('express');
 const {
     getNotifications,
-    markAsRead,
-    deleteNotification,
-    clearAllNotifications
+    markNotificationsAsRead,
+    deleteNotifications
 } = require('../controllers/notificationController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -15,13 +14,10 @@ notificationRouter.use(authMiddleware);
 // Obtener notificaciones del usuario
 notificationRouter.get('/', getNotifications);
 
-// Marcar notificación como leída
-notificationRouter.put('/:notificationId/read', markAsRead);
+// Marcar notificaciones como leídas
+notificationRouter.put('/read', markNotificationsAsRead);
 
-// Eliminar una notificación
-notificationRouter.delete('/:notificationId', deleteNotification);
-
-// Eliminar todas las notificaciones
-notificationRouter.delete('/', clearAllNotifications);
+// Eliminar notificaciones
+notificationRouter.delete('/', deleteNotifications);
 
 module.exports = { notificationRouter }; 

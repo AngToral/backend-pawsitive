@@ -1,8 +1,7 @@
 const express = require('express');
 const {
-    likePost,
-    unlikePost,
-    getLikes
+    toggleLike,
+    getLikeUsers
 } = require('../controllers/likeController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -11,13 +10,10 @@ const likeRouter = express.Router();
 // Todas las rutas requieren autenticación
 likeRouter.use(authMiddleware);
 
-// Dar like a un post
-likeRouter.post('/post/:postId', likePost);
+// Dar/quitar like a un post
+likeRouter.post('/post/:postId', toggleLike);
 
-// Quitar like de un post
-likeRouter.delete('/post/:postId', unlikePost);
-
-// Obtener likes de un post
-likeRouter.get('/post/:postId', getLikes);
+// Obtener usuarios que dieron like a un post
+likeRouter.get('/post/:postId/users', getLikeUsers);
 
 module.exports = { likeRouter }; 
