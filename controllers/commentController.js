@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 // Crear un nuevo comentario
 const createComment = async (req, res) => {
     try {
-        const { postId, content } = req.body;
+        const { text } = req.body;
+        const { postId } = req.params;
         const userId = req.user._id;
 
         // Verificar que el post existe
@@ -19,7 +20,7 @@ const createComment = async (req, res) => {
         const comment = await commentModel.create({
             post: postId,
             user: userId,
-            content
+            text
         });
 
         // Añadir el comentario al post
@@ -31,10 +32,9 @@ const createComment = async (req, res) => {
         if (post.user.toString() !== userId.toString()) {
             await notificationModel.create({
                 type: 'comment',
-                user: post.user,
-                fromUser: userId,
-                post: postId,
-                comment: comment._id
+                recipient: post.user,
+                sender: userId,
+                post: postId
             });
         }
 

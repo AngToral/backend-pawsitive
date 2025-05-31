@@ -292,8 +292,8 @@ const toggleLike = async (req, res) => {
                 ),
                 notificationModel.create([{
                     type: 'like',
-                    user: post.user,
-                    fromUser: userId,
+                    recipient: post.user,
+                    sender: userId,
                     post: postId
                 }], { session })
             ]);

@@ -26,8 +26,8 @@ const toggleLike = async (req, res) => {
             // Eliminar notificación de like si existe
             await notificationModel.deleteOne({
                 type: 'like',
-                user: post.user,
-                fromUser: userId,
+                recipient: post.user,
+                sender: userId,
                 post: postId
             });
         } else {
@@ -41,8 +41,8 @@ const toggleLike = async (req, res) => {
             if (post.user.toString() !== userId.toString()) {
                 await notificationModel.create({
                     type: 'like',
-                    user: post.user,
-                    fromUser: userId,
+                    recipient: post.user,
+                    sender: userId,
                     post: postId
                 });
             }

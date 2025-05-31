@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 app.use('/user', userRouter)
 app.use('/post', postRouter)
 app.use('/chat', conversationRouter)
-app.use('/comment', commentRouter)
+app.use('/', commentRouter)
 app.use('/like', likeRouter)
 app.use('/follow', followRouter)
 app.use('/message', messageRouter)
