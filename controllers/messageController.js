@@ -53,8 +53,8 @@ const sendMessage = async (req, res) => {
         // Crear notificación
         await notificationModel.create([{
             type: 'message',
-            user: receiverId,
-            fromUser: senderId,
+            recipient: receiverId,
+            sender: senderId,
             conversation: conversationId
         }], { session });
 
