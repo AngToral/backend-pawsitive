@@ -62,8 +62,8 @@ const followUser = async (req, res) => {
 
             await notificationModel.create([{
                 type: 'follow',
-                user: followingId,
-                fromUser: followerId
+                recipient: followingId,
+                sender: followerId
             }], { session });
         }
 
@@ -111,8 +111,8 @@ const unfollowUser = async (req, res) => {
         // Eliminar notificación relacionada si existe
         await notificationModel.deleteOne({
             type: 'follow',
-            user: followingId,
-            fromUser: followerId
+            recipient: followingId,
+            sender: followerId
         }).session(session);
 
         await session.commitTransaction();
@@ -125,7 +125,7 @@ const unfollowUser = async (req, res) => {
     }
 };
 
-// Obtener seguidores de un usuario
+// Obtener seguidores
 const getFollowers = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -223,8 +223,8 @@ const acceptFollowRequest = async (req, res) => {
         // Crear notificación de solicitud aceptada
         await notificationModel.create([{
             type: 'followAccepted',
-            user: followerId,
-            fromUser: userId
+            recipient: followerId,
+            sender: userId
         }], { session });
 
         await session.commitTransaction();
