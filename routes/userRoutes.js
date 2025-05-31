@@ -23,10 +23,11 @@ userRouter.post('/change-password', sendChangePassword);
 
 // Rutas protegidas
 userRouter.use(authMiddleware);
-userRouter.put('/update', updateUser);
-userRouter.put('/photo', uploadSingle, updatePhoto);
-userRouter.delete('/', deleteUser);
-userRouter.get('/search', getUsers);
+
+userRouter.put('/update/:id', updateUser);
+userRouter.put('/photo/:id', uploadSingle, updatePhoto);
+userRouter.delete('/:id', deleteUser);
+
 userRouter.get('/:id', getUserId);
 
 module.exports = { userRouter };
