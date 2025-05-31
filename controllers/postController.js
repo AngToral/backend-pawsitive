@@ -256,67 +256,10 @@ const deletePost = async (req, res) => {
     }
 };
 
-const toggleLike = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-        const postId = req.params.id;
-        const userId = req.user._id;
-
-        const post = await postModel.findOne({
-            _id: postId,
-            removedAt: null
-        });
-
-        if (!post) {
-            return res.status(404).json({ message: 'Post no encontrado' });
-        }
-
-        const isLiked = post.likes.includes(userId);
-
-        if (isLiked) {
-            // Quitar like
-            await postModel.findByIdAndUpdate(
-                postId,
-                { $pull: { likes: userId } },
-                { session }
-            );
-        } else {
-            // Agregar like y crear notificación
-            await Promise.all([
-                postModel.findByIdAndUpdate(
-                    postId,
-                    { $addToSet: { likes: userId } },
-                    { session }
-                ),
-                notificationModel.create([{
-                    type: 'like',
-                    recipient: post.user,
-                    sender: userId,
-                    post: postId
-                }], { session })
-            ]);
-        }
-
-        // Actualizar contadores
-        await updatePostCounts(postId, session);
-
-        await session.commitTransaction();
-        res.status(200).json({ liked: !isLiked });
-    } catch (error) {
-        await session.abortTransaction();
-        res.status(500).json({ message: 'Error al modificar el like', error: error.message });
-    } finally {
-        session.endSession();
-    }
-};
-
 module.exports = {
     getAllPosts,
     getPostById,
     createPost,
     updatePost,
-    deletePost,
-    toggleLike
+    deletePost
 };

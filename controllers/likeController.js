@@ -2,8 +2,21 @@ const { postModel } = require('../models/post.model');
 const { notificationModel } = require('../models/notification.model');
 const mongoose = require('mongoose');
 
+// Función auxiliar para actualizar contadores
+const updatePostCounts = async (postId, session) => {
+    const post = await postModel.findById(postId);
+    if (!post) return;
+
+    post.likesCount = post.likes.length;
+    post.commentsCount = post.comments.length;
+    await post.save({ session });
+};
+
 // Dar/quitar like a un post
 const toggleLike = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { postId } = req.params;
         const userId = req.user._id;
@@ -20,7 +33,7 @@ const toggleLike = async (req, res) => {
             // Quitar like
             await postModel.findByIdAndUpdate(postId, {
                 $pull: { likes: userId }
-            });
+            }, { session });
             action = 'unliked';
 
             // Eliminar notificación de like si existe
@@ -29,26 +42,31 @@ const toggleLike = async (req, res) => {
                 recipient: post.user,
                 sender: userId,
                 post: postId
-            });
+            }, { session });
         } else {
             // Dar like
             await postModel.findByIdAndUpdate(postId, {
                 $addToSet: { likes: userId }
-            });
+            }, { session });
             action = 'liked';
 
             // Crear notificación solo si el like no es del propio usuario del post
             if (post.user.toString() !== userId.toString()) {
-                await notificationModel.create({
+                await notificationModel.create([{
                     type: 'like',
                     recipient: post.user,
                     sender: userId,
                     post: postId
-                });
+                }], { session });
             }
         }
 
-        // Obtener el número actualizado de likes
+        // Actualizar contadores
+        await updatePostCounts(postId, session);
+
+        await session.commitTransaction();
+
+        // Obtener el post actualizado para devolver el número correcto de likes
         const updatedPost = await postModel.findById(postId);
 
         res.status(200).json({
@@ -57,7 +75,10 @@ const toggleLike = async (req, res) => {
             action
         });
     } catch (error) {
+        await session.abortTransaction();
         res.status(500).json({ message: 'Error al procesar like', error: error.message });
+    } finally {
+        session.endSession();
     }
 };
 

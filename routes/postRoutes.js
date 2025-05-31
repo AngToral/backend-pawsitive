@@ -4,32 +4,23 @@ const {
     getPostById,
     createPost,
     updatePost,
-    deletePost,
-    toggleLike
+    deletePost
 } = require('../controllers/postController');
 const { authMiddleware } = require('../middleware/authMiddleware');
-const { uploadMultiple, handleMulterError } = require('../middleware/uploadMiddleware');
+const { uploadMultiple, handleMultlerError } = require('../middleware/uploadMiddleware');
 
 const postRouter = express.Router();
 // Todas las rutas requieren autenticación
 postRouter.use(authMiddleware);
 
-// Obtener todos los posts
-postRouter.get('/', getAllPosts);
+// Rutas para posts
+postRouter.route('/')
+    .get(getAllPosts)
+    .post(uploadMultiple, createPost);
 
-// Obtener un post específico
-postRouter.get('/:id', getPostById);
-
-// Crear un nuevo post
-postRouter.post('/', uploadMultiple, handleMulterError, createPost);
-
-// Actualizar un post
-postRouter.put('/:id', uploadMultiple, handleMulterError, updatePost);
-
-// Eliminar un post
-postRouter.delete('/:id', deletePost);
-
-// Dar/quitar like a un post
-postRouter.post('/:id/like', toggleLike);
+postRouter.route('/:id')
+    .get(getPostById)
+    .put(uploadMultiple, updatePost)
+    .delete(deletePost);
 
 module.exports = { postRouter };
