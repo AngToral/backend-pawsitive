@@ -2,6 +2,7 @@ const { messageModel } = require('../models/message.model');
 const { conversationModel } = require('../models/conversation.model');
 const { notificationModel } = require('../models/notification.model');
 const mongoose = require('mongoose');
+const { io, emitToUser } = require('../websockets/websocket');
 
 // Función auxiliar para actualizar la conversación
 const updateConversation = async (conversationId, messageId, session) => {
@@ -63,6 +64,9 @@ const sendMessage = async (req, res) => {
         // Poblar el mensaje con datos del remitente
         const populatedMessage = await messageModel.findById(message[0]._id)
             .populate('sender', 'username profilePicture');
+
+        // Emitir el mensaje al receptor a través de socket.io
+        emitToUser(receiverId.toString(), 'receiveMessage', populatedMessage);
 
         res.status(201).json(populatedMessage);
     } catch (error) {
