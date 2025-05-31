@@ -282,6 +282,50 @@ const followUser = async (req, res) => {
     }
 };
 
+const searchUsers = async (req, res) => {
+    try {
+        const { username, fullName } = req.query;
+        const query = {
+            removedAt: null,
+            $or: []
+        };
+
+        if (username) {
+            query.$or.push({
+                username: {
+                    $regex: username,
+                    $options: 'i'
+                }
+            });
+        }
+
+        if (fullName) {
+            query.$or.push({
+                fullName: {
+                    $regex: fullName,
+                    $options: 'i'
+                }
+            });
+        }
+
+        // Si no hay criterios de búsqueda, devolver array vacío
+        if (query.$or.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const users = await userModel.find(query)
+            .select('username fullName profilePicture bio')
+            .limit(20);
+
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al buscar usuarios',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getUsers,
     getUserId,
@@ -292,5 +336,6 @@ module.exports = {
     deleteUser,
     forgotPasswordEmail,
     sendChangePassword,
-    followUser
+    followUser,
+    searchUsers
 }

@@ -8,7 +8,8 @@ const {
     getUsers,
     forgotPasswordEmail,
     sendChangePassword,
-    updatePhoto
+    updatePhoto,
+    searchUsers
 } = require('../controllers/userController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 const { uploadSingle } = require('../middleware/uploadMiddleware');
@@ -23,6 +24,9 @@ userRouter.post('/change-password', sendChangePassword);
 
 // Rutas protegidas
 userRouter.use(authMiddleware);
+
+// Ruta de búsqueda (debe ir antes de las rutas con :id)
+userRouter.get('/search', searchUsers);
 
 userRouter.put('/update/:id', updateUser);
 userRouter.put('/photo/:id', uploadSingle, updatePhoto);
