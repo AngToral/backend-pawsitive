@@ -2,6 +2,7 @@ const { followModel } = require('../models/follow.model');
 const { userModel } = require('../models/user.model');
 const { notificationModel } = require('../models/notification.model');
 const mongoose = require('mongoose');
+const { createNotification } = require('./notificationController');
 
 // Función auxiliar para actualizar contadores
 const updateFollowCounts = async (followerId, followingId, increment) => {
@@ -60,11 +61,11 @@ const followUser = async (req, res) => {
         if (!userToFollow.isPrivate) {
             await updateFollowCounts(followerId, followingId, true);
 
-            await notificationModel.create([{
+            await createNotification({
                 type: 'follow',
                 recipient: followingId,
                 sender: followerId
-            }], { session });
+            }, session);
         }
 
         await session.commitTransaction();
@@ -221,11 +222,11 @@ const acceptFollowRequest = async (req, res) => {
         await updateFollowCounts(followerId, userId, true);
 
         // Crear notificación de solicitud aceptada
-        await notificationModel.create([{
+        await createNotification({
             type: 'followAccepted',
             recipient: followerId,
             sender: userId
-        }], { session });
+        }, session);
 
         await session.commitTransaction();
         res.status(200).json({ message: 'Solicitud de seguimiento aceptada' });

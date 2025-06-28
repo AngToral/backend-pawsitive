@@ -2,9 +2,13 @@ const { commentModel } = require('../models/comment.model');
 const { postModel } = require('../models/post.model');
 const { notificationModel } = require('../models/notification.model');
 const mongoose = require('mongoose');
+const { createNotification } = require('./notificationController');
 
 // Crear un nuevo comentario
 const createComment = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { text } = req.body;
         const { postId } = req.params;
@@ -17,33 +21,39 @@ const createComment = async (req, res) => {
         }
 
         // Crear el comentario
-        const comment = await commentModel.create({
+        const comment = await commentModel.create([{
             post: postId,
             user: userId,
             text
-        });
+        }], { session });
 
         // Añadir el comentario al post
         await postModel.findByIdAndUpdate(postId, {
-            $push: { comments: comment._id }
-        });
+            $push: { comments: comment[0]._id }
+        }, { session });
 
         // Crear notificación si el comentario no es del propio usuario del post
         if (post.user.toString() !== userId.toString()) {
-            await notificationModel.create({
+            await createNotification({
                 type: 'comment',
                 recipient: post.user,
                 sender: userId,
-                post: postId
-            });
+                post: postId,
+                comment: comment[0]._id
+            }, session);
         }
 
+        await session.commitTransaction();
+
         // Poblar el comentario con datos del usuario
-        const populatedComment = await comment.populate('user', 'username profileImage');
+        const populatedComment = await comment[0].populate('user', 'username profileImage');
 
         res.status(201).json(populatedComment);
     } catch (error) {
+        await session.abortTransaction();
         res.status(500).json({ message: 'Error al crear comentario', error: error.message });
+    } finally {
+        session.endSession();
     }
 };
 

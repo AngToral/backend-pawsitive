@@ -1,6 +1,7 @@
 const { postModel } = require('../models/post.model');
 const { notificationModel } = require('../models/notification.model');
 const mongoose = require('mongoose');
+const { createNotification } = require('./notificationController');
 
 // Función auxiliar para actualizar contadores
 const updatePostCounts = async (postId, session) => {
@@ -52,12 +53,12 @@ const toggleLike = async (req, res) => {
 
             // Crear notificación solo si el like no es del propio usuario del post
             if (post.user.toString() !== userId.toString()) {
-                await notificationModel.create([{
+                await createNotification({
                     type: 'like',
                     recipient: post.user,
                     sender: userId,
                     post: postId
-                }], { session });
+                }, session);
             }
         }
 

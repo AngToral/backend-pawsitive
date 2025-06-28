@@ -14,20 +14,32 @@ const notificationSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['like', 'comment', 'follow', 'message'],
+        enum: ['like', 'comment', 'follow', 'followAccepted', 'message'],
         required: true
     },
     post: {
         type: Schema.Types.ObjectId,
         ref: 'postModel'
     },
+    comment: {
+        type: Schema.Types.ObjectId,
+        ref: 'commentModel'
+    },
     read: {
         type: Boolean,
         default: false
+    },
+    readAt: {
+        type: Date,
+        default: null
     }
 },
     { timestamps: true }
 );
+
+// Índice para mejorar el rendimiento de las consultas
+notificationSchema.index({ recipient: 1, createdAt: -1 });
+notificationSchema.index({ recipient: 1, read: 1 });
 
 const notificationModel = mongoose.model("notificationModel", notificationSchema);
 
