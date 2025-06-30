@@ -207,9 +207,40 @@ const deleteMessage = async (req, res) => {
     }
 };
 
+// Buscar mensajes por término dentro de una conversación
+const searchMessages = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const { term } = req.query;
+        const userId = req.user._id;
+
+        // Verificar que el usuario es participante de la conversación
+        const conversation = await conversationModel.findOne({
+            _id: conversationId,
+            participants: userId
+        });
+
+        if (!conversation) {
+            return res.status(404).json({ message: 'Conversación no encontrada' });
+        }
+
+        // Buscar mensajes que contengan el término (insensible a mayúsculas/minúsculas)
+        const messages = await messageModel.find({
+            conversation: conversationId,
+            content: { $regex: term, $options: 'i' }
+        }).populate('sender', 'username profilePicture')
+            .sort({ createdAt: 1 });
+
+        res.status(200).json({ messages });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al buscar mensajes', error: error.message });
+    }
+};
+
 module.exports = {
     sendMessage,
     markMessageAsRead,
     getConversationMessages,
-    deleteMessage
+    deleteMessage,
+    searchMessages
 };

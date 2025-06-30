@@ -3,7 +3,8 @@ const {
     sendMessage,
     markMessageAsRead,
     getConversationMessages,
-    deleteMessage
+    deleteMessage,
+    searchMessages
 } = require('../controllers/messageController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -23,5 +24,8 @@ messageRouter.get('/conversation/:conversationId', getConversationMessages);
 
 // Eliminar mensaje
 messageRouter.delete('/:messageId', deleteMessage);
+
+// Buscar mensajes dentro de una conversación
+messageRouter.get('/:conversationId/search', searchMessages);
 
 module.exports = { messageRouter }; 
