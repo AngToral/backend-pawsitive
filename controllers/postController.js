@@ -39,24 +39,30 @@ const extractMentions = async (caption) => {
 //     return Promise.all(uploadPromises);
 // };
 
-const uploadImages = async (files) => {
-    const uploadPromises = files.map(file =>
-        new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                { resource_type: 'image' },
-                (error, result) => {
-                    if (error) return reject(error);
-                    resolve({
-                        url: result.secure_url,
-                        publicId: result.public_id
-                    });
-                }
-            );
-            stream.end(file.buffer);
-        })
-    );
+const uploadImage = (file) => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'image' },
+            (error, result) => {
+                if (error) return reject(error);
+                resolve({
+                    url: result.secure_url,
+                    publicId: result.public_id,
+                });
+            }
+        );
 
-    return Promise.all(uploadPromises);
+        stream.end(file.buffer);
+    });
+};
+
+const uploadImages = async (files) => {
+    const results = [];
+    for (const file of files) {
+        const result = await uploadImage(file);
+        results.push(result);
+    }
+    return results;
 };
 
 // Función auxiliar para actualizar contadores
