@@ -1,4 +1,5 @@
 const express = require('express');
+const { uploadMultiple, handleMultlerError } = require('../middleware/uploadMiddleware');
 const {
     getAllPosts,
     getPostById,
@@ -7,20 +8,18 @@ const {
     deletePost
 } = require('../controllers/postController');
 const { authMiddleware } = require('../middleware/authMiddleware');
-const { uploadMultiple, handleMultlerError } = require('../middleware/uploadMiddleware');
 
 const postRouter = express.Router();
 // Todas las rutas requieren autenticación
-postRouter.use(authMiddleware);
 
 // Rutas para posts
 postRouter.route('/')
-    .get(getAllPosts)
-    .post(uploadMultiple, createPost);
+    .get(authMiddleware, getAllPosts)
+    .post(uploadMultiple, authMiddleware, createPost);
 
 postRouter.route('/:id')
-    .get(getPostById)
-    .put(uploadMultiple, updatePost)
-    .delete(deletePost);
+    .get(authMiddleware, getPostById)
+    .put(uploadMultiple, authMiddleware, updatePost)
+    .delete(authMiddleware, deletePost);
 
 module.exports = { postRouter };

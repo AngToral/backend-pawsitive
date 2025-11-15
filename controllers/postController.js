@@ -93,6 +93,10 @@ const getPostById = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
+    console.log('req.files:', req.files);
+    console.log('req.body:', req.body);
+    console.log('req.user:', req.user);
+
     const session = await mongoose.startSession();
     session.startTransaction();
 
