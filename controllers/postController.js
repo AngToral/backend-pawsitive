@@ -24,46 +24,19 @@ const extractMentions = async (caption) => {
 };
 
 // Función auxiliar para subir imágenes a Cloudinary
-// const uploadImages = async (files) => {
-//     const uploadPromises = files.map(file =>
-//         cloudinary.uploader.upload(file.path)
-//             .then(result => {
-//                 fs.unlinkSync(file.path);
-//                 return {
-//                     url: result.url,
-//                     publicId: result.public_id
-//                 };
-//             })
-//     );
-
-//     return Promise.all(uploadPromises);
-// };
-
-const uploadImage = (file) => {
-    return new Promise((resolve, reject) => {
-        console.log('Inicio upload stream', file.originalname);
-        const stream = cloudinary.uploader.upload_stream(
-            { resource_type: 'image' },
-            (error, result) => {
-                console.log('Fin upload stream', file.originalname, error, result);
-                if (error) return reject(error);
-                resolve({
-                    url: result.secure_url,
-                    publicId: result.public_id,
-                });
-            }
-        );
-        stream.end(file.buffer);
-    });
-};
-
 const uploadImages = async (files) => {
-    const results = [];
-    for (const file of files) {
-        const result = await uploadImage(file);
-        results.push(result);
-    }
-    return results;
+    const uploadPromises = files.map(file =>
+        cloudinary.uploader.upload(file.path)
+            .then(result => {
+                fs.unlinkSync(file.path);
+                return {
+                    url: result.url,
+                    publicId: result.public_id
+                };
+            })
+    );
+
+    return Promise.all(uploadPromises);
 };
 
 // Función auxiliar para actualizar contadores
@@ -120,10 +93,6 @@ const getPostById = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-    console.log('req.files:', req.files);
-    console.log('req.body:', req.body);
-    console.log('req.user:', req.user);
-
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -136,10 +105,8 @@ const createPost = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere al menos una imagen' });
         }
 
-        console.log('Subiendo imágenes...');
         // Subir imágenes a Cloudinary
         const uploadedImages = await uploadImages(req.files);
-        console.log('Imágenes subidas:', uploadedImages);
 
         // Extraer menciones
         const mentions = await extractMentions(caption);

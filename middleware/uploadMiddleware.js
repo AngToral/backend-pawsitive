@@ -1,8 +1,15 @@
 const multer = require('multer');
-//const path = require('path');
+const path = require('path');
 
 // Configuración de almacenamiento
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'images-post/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
 
 // Filtro de archivos
 const fileFilter = (req, file, cb) => {
@@ -16,8 +23,8 @@ const fileFilter = (req, file, cb) => {
 
 // Configuración de multer
 const upload = multer({
-    storage,
-    fileFilter,
+    storage: storage,
+    fileFilter: fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB máximo
         files: 10 // máximo 10 archivos
