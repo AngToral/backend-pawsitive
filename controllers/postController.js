@@ -41,9 +41,11 @@ const extractMentions = async (caption) => {
 
 const uploadImage = (file) => {
     return new Promise((resolve, reject) => {
+        console.log('Inicio upload stream', file.originalname);
         const stream = cloudinary.uploader.upload_stream(
             { resource_type: 'image' },
             (error, result) => {
+                console.log('Fin upload stream', file.originalname, error, result);
                 if (error) return reject(error);
                 resolve({
                     url: result.secure_url,
@@ -51,7 +53,6 @@ const uploadImage = (file) => {
                 });
             }
         );
-
         stream.end(file.buffer);
     });
 };
@@ -135,8 +136,10 @@ const createPost = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere al menos una imagen' });
         }
 
+        console.log('Subiendo imágenes...');
         // Subir imágenes a Cloudinary
         const uploadedImages = await uploadImages(req.files);
+        console.log('Imágenes subidas:', uploadedImages);
 
         // Extraer menciones
         const mentions = await extractMentions(caption);
