@@ -25,16 +25,16 @@ const extractMentions = async (caption) => {
 
 // Función auxiliar para subir imágenes a Cloudinary
 const uploadImages = async (files) => {
-    const uploadPromises = files.map(file =>
-        cloudinary.uploader.upload(file.path)
-            .then(result => {
-                fs.unlinkSync(file.path);
-                return {
-                    url: result.url,
-                    publicId: result.public_id
-                };
-            })
-    );
+    const uploadPromises = files.map(file => {
+        const base64 = file.buffer.toString('base64');
+        const dataUri = `data:${file.mimetype};base64,${base64}`;
+
+        return cloudinary.uploader.upload(dataUri, { resource_type: 'image' })
+            .then(result => ({
+                url: result.secure_url,
+                publicId: result.public_id,
+            }));
+    });
 
     return Promise.all(uploadPromises);
 };

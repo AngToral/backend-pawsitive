@@ -2,14 +2,7 @@ const multer = require('multer');
 const path = require('path');
 
 // Configuración de almacenamiento
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './images-post');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+const storage = multer.memoryStorage();
 
 // Filtro de archivos
 const fileFilter = (req, file, cb) => {
@@ -35,7 +28,7 @@ const upload = multer({
 const uploadSingle = upload.single('image');
 
 // Middleware para subir múltiples imágenes
-const uploadMultiple = upload.array('images', 10);
+const uploadMultiple = multer({ storage }).array('images', 10);
 
 // Middleware de manejo de errores de multer
 const handleMulterError = (err, req, res, next) => {
