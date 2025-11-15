@@ -24,16 +24,36 @@ const extractMentions = async (caption) => {
 };
 
 // Función auxiliar para subir imágenes a Cloudinary
+// const uploadImages = async (files) => {
+//     const uploadPromises = files.map(file =>
+//         cloudinary.uploader.upload(file.path)
+//             .then(result => {
+//                 fs.unlinkSync(file.path);
+//                 return {
+//                     url: result.url,
+//                     publicId: result.public_id
+//                 };
+//             })
+//     );
+
+//     return Promise.all(uploadPromises);
+// };
+
 const uploadImages = async (files) => {
     const uploadPromises = files.map(file =>
-        cloudinary.uploader.upload(file.path)
-            .then(result => {
-                fs.unlinkSync(file.path);
-                return {
-                    url: result.url,
-                    publicId: result.public_id
-                };
-            })
+        new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { resource_type: 'image' },
+                (error, result) => {
+                    if (error) return reject(error);
+                    resolve({
+                        url: result.secure_url,
+                        publicId: result.public_id
+                    });
+                }
+            );
+            stream.end(file.buffer);
+        })
     );
 
     return Promise.all(uploadPromises);
